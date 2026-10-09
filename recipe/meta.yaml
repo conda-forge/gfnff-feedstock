@@ -34,6 +34,9 @@ requirements:
     - numpy
     - libblas
     - liblapack
+    # use conda-forge's toml-f: without it CMake would download and vendor
+    # its own copy during the build
+    - toml-f-devel
   run:
     - python
     - numpy
@@ -41,8 +44,13 @@ requirements:
 test:
   imports:
     - gfnff
+  requires:
+    - pip
   commands:
+    - pip check
     - gfnff --help
+    # the library must have been built with TOML parameter file support
+    - python -c "from gfnff._lib import toml_available; assert toml_available()"
 
 about:
   home: https://github.com/pprcht/gfnff
