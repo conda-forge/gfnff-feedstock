@@ -1,5 +1,5 @@
 {% set name = "gfnff" %}
-{% set version = "0.2.0" %}
+{% set version = "0.3.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/pprcht/gfnff/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: a3a91a066578bf5c8e545df94cb587f62613ca44b9284b1dfe81982145f45f75
+  sha256: 8511a2b8910894e75e12abb690b6f566b80e6afdf6f3618e2494ac8d6650eb0a
 
 build:
-  number: 1
+  number: 0
   # Force the Ninja generator: conda-build defaults CMAKE_GENERATOR to
   # "Unix Makefiles", which makes scikit-build-core skip Ninja detection and
   # never set CMAKE_MAKE_PROGRAM (there is no `make` in the build image).
@@ -34,6 +34,9 @@ requirements:
     - numpy
     - libblas
     - liblapack
+    # use conda-forge's toml-f: without it CMake would download and vendor
+    # its own copy during the build
+    - toml-f-devel
   run:
     - python
     - numpy
@@ -41,8 +44,13 @@ requirements:
 test:
   imports:
     - gfnff
+  requires:
+    - pip
   commands:
+    - pip check
     - gfnff --help
+    # the library must have been built with TOML parameter file support
+    - python -c "from gfnff._lib import toml_available; assert toml_available()"
 
 about:
   home: https://github.com/pprcht/gfnff
